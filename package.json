@@ -1,7 +1,7 @@
 {
   "name": "tcia-whatsapp",
   "version": "1.0.0",
-  "description": "",
+  "description": "TC-IA WhatsApp Bot",
   "main": "server.js",
   "type": "module",
   "scripts": {
