@@ -2,6 +2,10 @@ const express = require("express");
 const axios = require("axios");
 const bodyParser = require("body-parser");
 
+const app = express();
+app.use(express.json());
+app.use(bodyParser.json());
+
 // ==============================
 // VARIABLES DE ENTORNO (RAILWAY)
 // ==============================
@@ -39,7 +43,7 @@ app.get("/webhook", (req, res) => {
     return res.status(200).send(challenge);
   }
 
-  console.log("Fallo en verificación ❌");
+  console.log("❌ Fallo en verificación");
   return res.sendStatus(403);
 });
 
@@ -49,34 +53,29 @@ app.get("/webhook", (req, res) => {
 // ============================================
 app.post("/webhook", async (req, res) => {
   try {
-    const entry = req.body.entry?.[0]?.changes?.[0]?.value;
-    const msg   = entry?.messages?.[0];
+    const entry = req.body.entry?.[0];
+    const change = entry?.changes?.[0];
+    const value  = change?.value;
+    const msg    = value?.messages?.[0];
 
     if (!msg) return res.sendStatus(200);
 
     const from  = msg.from;
     const texto = msg.text?.body || "";
 
-    console.log("Mensaje recibido:", texto);
+    console.log("📩 Mensaje recibido:", texto);
 
-    // ============================================
-    // 3) LLAMAR A TC-IA
-    // ============================================
-    const tcRes = await axios.post(
-      TCIA_API_URL,
-      {
-        usuario: from,
-        mensaje: texto,
-        apikey: TCIA_API_KEY,
-        token: TCIA_TOKEN
-      }
-    );
+    // 3) ENVIAR A TC-IA
+    const tcRes = await axios.post(TCIA_API_URL, {
+      usuario: from,
+      mensaje: texto,
+      apikey: TCIA_API_KEY,
+      token: TCIA_TOKEN
+    });
 
     const respuestaIA = tcRes.data.respuesta || "No entendí eso 😥";
 
-    // ============================================
     // 4) RESPONDER A WHATSAPP
-    // ============================================
     await axios.post(
       WA_URL,
       {
@@ -95,7 +94,7 @@ app.post("/webhook", async (req, res) => {
     res.sendStatus(200);
 
   } catch (err) {
-    console.log("ERROR WhatsApp Bot:", err);
+    console.log("❌ ERROR WhatsApp Bot:", err);
     res.sendStatus(500);
   }
 });
@@ -104,13 +103,8 @@ app.post("/webhook", async (req, res) => {
 // ============================================
 // 5) INICIAR SERVIDOR
 // ============================================
-const PORT = process.env.PORT;
-
-if (!PORT) {
-  console.error("❌ ERROR: Railway no envió PORT");
-  process.exit(1);
-}
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log("🔥 TC-IA WhatsApp corriendo en Railway en puerto " + PORT);
+  console.log("🔥 TC-IA WhatsApp en Railway en puerto " + PORT);
 });
