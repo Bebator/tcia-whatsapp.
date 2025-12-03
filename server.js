@@ -12,13 +12,21 @@ const ACCESS_TOKEN     = process.env.WHATSAPP_ACCESS_TOKEN;
 const PHONE_NUMBER_ID  = process.env.WHATSAPP_PHONE_NUMBER_ID;
 const VERIFY_TOKEN     = process.env.WHATSAPP_VERIFY_TOKEN;
 
-// TC-IA (TU SISTEMA REAL)
+// TC-IA
 const TCIA_API_KEY     = process.env.TCIA_API_KEY;
 const TCIA_TOKEN       = process.env.TCIA_TOKEN;
 const TCIA_API_URL     = "https://top-conquerors.com/IATC/TC-IA.php";
 
 // URL WhatsApp API
 const WA_URL = `https://graph.facebook.com/v20.0/${PHONE_NUMBER_ID}/messages`;
+
+
+// ============================================
+// HOME PARA PRUEBA
+// ============================================
+app.get("/", (req, res) => {
+  res.send("TC-IA WhatsApp Bot funcionando ✔");
+});
 
 
 // ============================================
@@ -30,9 +38,11 @@ app.get("/webhook", (req, res) => {
   const challenge = req.query["hub.challenge"];
 
   if (mode === "subscribe" && token === VERIFY_TOKEN) {
+    console.log("Webhook verificado correctamente ✔");
     return res.status(200).send(challenge);
   }
 
+  console.log("Fallo en verificación ❌");
   return res.sendStatus(403);
 });
 
@@ -53,7 +63,7 @@ app.post("/webhook", async (req, res) => {
     console.log("Mensaje recibido:", texto);
 
     // ============================================
-    // 3) LLAMAR A TC-IA REAL
+    // 3) LLAMAR A TC-IA
     // ============================================
     const tcRes = await axios.post(
       TCIA_API_URL,
