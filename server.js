@@ -3,7 +3,10 @@ const axios = require("axios");
 const bodyParser = require("body-parser");
 
 const app = express();
+
+// Necesario para que WhatsApp mande el POST correctamente
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // ==============================
 // VARIABLES DE ENTORNO (RAILWAY)
@@ -22,7 +25,7 @@ const WA_URL = `https://graph.facebook.com/v20.0/${PHONE_NUMBER_ID}/messages`;
 
 
 // ============================================
-// HOME PARA PRUEBA
+// HOME
 // ============================================
 app.get("/", (req, res) => {
   res.send("TC-IA WhatsApp Bot funcionando ✔");
@@ -30,7 +33,7 @@ app.get("/", (req, res) => {
 
 
 // ============================================
-// 1) VERIFICACIÓN WEBHOOK
+// 1) VERIFICACIÓN DEL WEBHOOK
 // ============================================
 app.get("/webhook", (req, res) => {
   const mode = req.query["hub.mode"];
@@ -44,6 +47,16 @@ app.get("/webhook", (req, res) => {
 
   console.log("Fallo en verificación ❌");
   return res.sendStatus(403);
+});
+
+
+// ============================================
+// DEBUG — VER SI EL POST LLEGA DE META
+// ============================================
+app.post("/webhook", (req, res, next) => {
+  console.log("🔥 POST /webhook llegó al servidor");
+  console.log(JSON.stringify(req.body, null, 2));
+  next();
 });
 
 
@@ -105,14 +118,9 @@ app.post("/webhook", async (req, res) => {
 
 
 // ============================================
-// 5) INICIAR SERVIDOR
+// INICIAR SERVIDOR
 // ============================================
-const PORT = process.env.PORT;
-
-if (!PORT) {
-  console.error("❌ ERROR: Railway no envió PORT");
-  process.exit(1);
-}
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log("🔥 TC-IA WhatsApp corriendo en Railway en puerto " + PORT);
