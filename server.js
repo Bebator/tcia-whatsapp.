@@ -107,6 +107,13 @@ app.post("/webhook", async (req, res) => {
 // ============================================
 // 5) INICIAR SERVIDOR
 // ============================================
-app.listen(process.env.PORT || 3000, () => {
-  console.log("🔥 TC-IA WhatsApp corriendo en Railway");
+const PORT = process.env.PORT;
+
+if (!PORT) {
+  console.error("❌ ERROR: Railway no envió PORT");
+  process.exit(1);
+}
+
+app.listen(PORT, () => {
+  console.log("🔥 TC-IA WhatsApp corriendo en Railway en puerto " + PORT);
 });
