@@ -1,9 +1,6 @@
-import express from "express";
-import axios from "axios";
-import bodyParser from "body-parser";
-
-const app = express();
-app.use(bodyParser.json());
+const express = require("express");
+const axios = require("axios");
+const bodyParser = require("body-parser");
 
 // ==============================
 // VARIABLES DE ENTORNO (RAILWAY)
